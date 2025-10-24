@@ -2,8 +2,10 @@ package com.example.androiduitesting;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +15,10 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    // Declare the variables so that you will be able to reference it later.
+
+    public static final String EXTRA_CITY = "com.example.androiduitesting.EXTRA_CITY";
+
+    // UI references
     ListView cityList;
     EditText newName;
     LinearLayout nameField;
@@ -27,18 +32,10 @@ public class MainActivity extends AppCompatActivity {
 
         nameField = findViewById(R.id.field_nameEntry);
         newName  = findViewById(R.id.editText_name);
-
         cityList = findViewById(R.id.city_list);
 
-        //String []cities ={"Edmonton", "Vancouver", "Moscow", "Sydney", "Berlin", "Vienna", "Tokyo", "Beijing", "Osaka", "New Delhi"};
-
         dataList = new ArrayList<>();
-
-        //dataList.addAll(Arrays.asList(cities));
-
         cityAdapter = new ArrayAdapter<>(this, R.layout.content, dataList);
-
-
         cityList.setAdapter(cityAdapter);
 
         final Button addButton = findViewById(R.id.button_add);
@@ -51,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
         final Button confirmButton = findViewById(R.id.button_confirm);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String cityName = newName.getText().toString();
-                cityAdapter.add(cityName);
+                String cityName = newName.getText().toString().trim();
+                if (!cityName.isEmpty()) {
+                    cityAdapter.add(cityName);
+                }
                 newName.getText().clear();
                 nameField.setVisibility(View.INVISIBLE);
             }
@@ -62,6 +61,16 @@ public class MainActivity extends AppCompatActivity {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 cityAdapter.clear();
+            }
+        });
+
+        cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selected = (String) parent.getItemAtPosition(position);
+                Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                intent.putExtra(EXTRA_CITY, selected);
+                startActivity(intent);
             }
         });
     }
